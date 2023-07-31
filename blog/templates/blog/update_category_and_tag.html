@@ -1,0 +1,253 @@
+{% load static %}
+{% load extratag %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    <link href="{% static 'login/js/sweetalert/sweetalert.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'blog/css/update_category_and_tag.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'blog/css/font-awesome.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'blog/js/spectrum/spectrum.css' %}" />
+    {% if limit %}
+        <title>LZLSite | 权限不足</title>
+    {% else %}
+        <title>LZLSite | 更改分类与标签</title>
+    {% endif %}
+</head>
+
+<body>
+
+    <!-- 
+    <div class="loader_bg">
+        <div class="loader"><img src="{% static 'blog/image/loading.gif' %}" alt="#"/></div>
+    </div>
+    -->
+
+    <header class="header-area">
+        <div class="header-container">
+            <div class="row d_flex">
+                <div class="col-md-12 col-sm-12">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <a class="logo" href="{% url 'index' %}"> LZLSITE </a>
+                            <i class="fa fa-envelope" aria-hidden="true"><a class="contactlink" href="https://mail.163.com/">lzl20220405@163.com</a></i>
+                            
+                            <ul>
+                                <li><a href="{% url 'index' %}">主页</a></li>
+                                <li><a href="{% url 'about' %}">关于作者</a></li>
+                                <li><a class="active" href="{% url 'list' 1 %}">博客</a></li>
+                                <li><a href="{% url 'works' 1 %}">其他作品</a></li>
+                             </ul>
+                        </nav>
+                        <ul class="email text_align_right">
+                            {% if login %}
+                                <a href={% url 'user_index' username %} target="_blank"><img class="avatar" src="{{ user.avatar.url }}"></img></a>
+                            {% else %}
+                                <li><a class="login_button" href="{% url 'login' %}" target="_blank">登录</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% if limit %}
+
+    <h1 style="text-align: center; color: black; margin-top: 80px; font-weight: 600;"> 抱歉，您的权限不足，无法访问！</h1>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+
+</body>
+
+</html>
+
+    {% else %}
+
+    {% if message %}
+
+    <div class="alert alert-warning alert-dismissible fade show" style="width:1000px; padding-left:50px; margin:0 auto">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>{{ message }}</strong>
+    </div>
+
+    {% endif %}
+
+    <form action="{% url 'update_ct' %}" method="POST">
+        
+    {% csrf_token %}
+
+    <div class="full_bg">        
+    
+        <div class="dropdown-container-1">
+            <label for="category_input" class="category_input_label">选择分类</label>
+            <button type="button" class="category_input_button dropdown-toggle" data-toggle="dropdown">选择分类</button>
+            <div class="dropdown-menu">
+                {% for category in all_category %}
+                    <button type="button" class="dropdown-item" onclick="SetCategory('{{ category.name }}', '{{ category.color }}')">{{ category.name }}</button>
+                {% endfor %}
+            </div>
+            <input type="text" name="category_name" class="category_input" id="category_input" placeholder="请输入要更改的分类" value={{ blog.category.name }}></input><br>
+        </div>
+
+        <label for="category_color_input" class="category_color_input_label" >分类颜色</label>
+        <input type="text" class="category_color_pattern" id="category_color_pattern"></input>
+        <input type="text" name="category_color" class="category_color_input" id="category_color_input" placeholder="请输入更改后分类的颜色"></input><br>
+    
+        <div class="dropdown-container-2">
+            <label for="tag_input" class="tag_input_label" >选择标签</label>
+            <button type="button" class="tag_input_button dropdown-toggle" data-toggle="dropdown">选择标签</button>
+            <div class="dropdown-menu">
+                {% for tag in all_tag %}
+                    <button type="button" class="dropdown-item" onclick="SetTag('{{ tag.name }}', '{{ tag.color }}')">{{ tag.name }}</button>
+                {% endfor %}
+            </div>
+            <input type="text" name="tag_name" class="tag_input" id="tag_input" placeholder="请输入要更改的标签"></input><br>
+        </div>
+
+        <label for="tag_color_input" class="tag_color_input_label" >标签颜色</label>
+        <input type="text" class="tag_color_pattern" id="tag_color_pattern"></input>
+        <input type="text" name="tag_color" class="tag_color_input" id="tag_color_input" placeholder="请输入更改后标签的颜色"></input><br>
+
+        <button class="btn btn-success float-left" type="submit">保存分类与标签</button>
+
+    </div>
+
+    </form>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/spectrum/spectrum.js' %}"></script>
+
+    <script type="text/javascript">
+
+    window.history.replaceState(null, null, window.location.href);
+
+    $("#category_color_pattern").spectrum({
+        showInput: true,
+        allowEmpty: true,
+        clickoutFiresChange: false,
+        showInitial: false,
+        showPalette: true,
+        showSelectionPalette: true,
+        showAlpha: false,
+        maxPaletteSize: 7,
+        cancelText: "取消",
+        chooseText: "确定",
+        noColorSelectedText: "无颜色选择",
+        preferredFormat: "hex",
+
+		palette: [
+        ["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", "rgb(153, 153, 153)","rgb(183, 183, 183)",
+        "rgb(204, 204, 204)", "rgb(217, 217, 217)", "rgb(239, 239, 239)", "rgb(243, 243, 243)", "rgb(255, 255, 255)"],
+        ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+        "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+        ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+        "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)"],
+        ["rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+        "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)"],
+        ["rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+        "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)"],
+        ["rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+        "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)"],
+        ["rgb(133, 32, 12)", "rgb(153, 0, 0)", "rgb(180, 95, 6)", "rgb(191, 144, 0)", "rgb(56, 118, 29)",
+        "rgb(19, 79, 92)", "rgb(17, 85, 204)", "rgb(11, 83, 148)", "rgb(53, 28, 117)", "rgb(116, 27, 71)"],
+        ["rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+        "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"],
+       ],
+
+       hide: function(color){
+            SetCategoryColor(color);
+       },
+    })
+
+    $("#tag_color_pattern").spectrum({
+        showInput: true,
+        allowEmpty: true,
+        clickoutFiresChange: false,
+        showInitial: false,
+        showPalette: true,
+        showSelectionPalette: true,
+        showAlpha: false,
+        maxPaletteSize: 7,
+        cancelText: "取消",
+        chooseText: "确定",
+        noColorSelectedText: "无颜色选择",
+        preferredFormat: "hex",
+
+		palette: [
+        ["rgb(0, 0, 0)", "rgb(67, 67, 67)", "rgb(102, 102, 102)", "rgb(153, 153, 153)","rgb(183, 183, 183)",
+        "rgb(204, 204, 204)", "rgb(217, 217, 217)", "rgb(239, 239, 239)", "rgb(243, 243, 243)", "rgb(255, 255, 255)"],
+        ["rgb(152, 0, 0)", "rgb(255, 0, 0)", "rgb(255, 153, 0)", "rgb(255, 255, 0)", "rgb(0, 255, 0)",
+        "rgb(0, 255, 255)", "rgb(74, 134, 232)", "rgb(0, 0, 255)", "rgb(153, 0, 255)", "rgb(255, 0, 255)"],
+        ["rgb(230, 184, 175)", "rgb(244, 204, 204)", "rgb(252, 229, 205)", "rgb(255, 242, 204)", "rgb(217, 234, 211)",
+        "rgb(208, 224, 227)", "rgb(201, 218, 248)", "rgb(207, 226, 243)", "rgb(217, 210, 233)", "rgb(234, 209, 220)"],
+        ["rgb(221, 126, 107)", "rgb(234, 153, 153)", "rgb(249, 203, 156)", "rgb(255, 229, 153)", "rgb(182, 215, 168)",
+        "rgb(162, 196, 201)", "rgb(164, 194, 244)", "rgb(159, 197, 232)", "rgb(180, 167, 214)", "rgb(213, 166, 189)"],
+        ["rgb(204, 65, 37)", "rgb(224, 102, 102)", "rgb(246, 178, 107)", "rgb(255, 217, 102)", "rgb(147, 196, 125)",
+        "rgb(118, 165, 175)", "rgb(109, 158, 235)", "rgb(111, 168, 220)", "rgb(142, 124, 195)", "rgb(194, 123, 160)"],
+        ["rgb(166, 28, 0)", "rgb(204, 0, 0)", "rgb(230, 145, 56)", "rgb(241, 194, 50)", "rgb(106, 168, 79)",
+        "rgb(69, 129, 142)", "rgb(60, 120, 216)", "rgb(61, 133, 198)", "rgb(103, 78, 167)", "rgb(166, 77, 121)"],
+        ["rgb(133, 32, 12)", "rgb(153, 0, 0)", "rgb(180, 95, 6)", "rgb(191, 144, 0)", "rgb(56, 118, 29)",
+        "rgb(19, 79, 92)", "rgb(17, 85, 204)", "rgb(11, 83, 148)", "rgb(53, 28, 117)", "rgb(116, 27, 71)"],
+        ["rgb(91, 15, 0)", "rgb(102, 0, 0)", "rgb(120, 63, 4)", "rgb(127, 96, 0)", "rgb(39, 78, 19)",
+        "rgb(12, 52, 61)", "rgb(28, 69, 135)", "rgb(7, 55, 99)", "rgb(32, 18, 77)", "rgb(76, 17, 48)"],
+       ],
+
+       hide: function(color){
+            SetTagColor(color);
+       },
+    })
+
+    function SetCategory(name, color){
+        const category_input = document.getElementById('category_input');
+        const category_color_input = document.getElementById('category_color_input');
+        category_input.value = name;
+        category_color_input.value = color;
+        $("#category_color_pattern").spectrum("set", color);
+    }
+
+    function SetTag(name, color){
+        const tag_input = document.getElementById('tag_input');
+        const tag_color_input = document.getElementById('tag_color_input');
+        tag_input.value = name;
+        tag_color_input.value = color;
+        $("#tag_color_pattern").spectrum("set", color);
+    }
+
+    function SetCategoryColor(color){
+        const category_color_input = document.getElementById('category_color_input');
+        var hexColor = category_color_input.value
+        
+        if (color){
+            hexColor = color.toHexString();
+        }
+        category_color_input.value = hexColor;
+    }
+
+    function SetTagColor(color){
+        const tag_color_input = document.getElementById('tag_color_input');
+        var hexColor = tag_color_input.value
+        
+        if (color){
+            hexColor = color.toHexString();
+        }
+        tag_color_input.value = hexColor;
+    }
+
+    </script>
+
+</body>
+
+</html>
+
+{% endif %}

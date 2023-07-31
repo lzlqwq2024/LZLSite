@@ -1,0 +1,267 @@
+{% load static %}
+{% load extratag %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    <link href="{% static 'login/js/sweetalert/sweetalert.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'blog/css/update.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'blog/css/font-awesome.min.css' %}" />
+    {% if limit %}
+        <title>LZLSite | 权限不足</title>
+    {% else %}
+        <title>LZLSite | 更改博客</title>
+    {% endif %}
+</head>
+
+<body>
+
+    <!-- 
+    <div class="loader_bg">
+        <div class="loader"><img src="{% static 'blog/image/loading.gif' %}" alt="#"/></div>
+    </div>
+    -->
+
+    <header class="header-area">
+        <div class="header-container">
+            <div class="row d_flex">
+                <div class="col-md-12 col-sm-12">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <a class="logo" href="{% url 'index' %}"> LZLSITE </a>
+                            <i class="fa fa-envelope" aria-hidden="true"><a class="contactlink" href="https://mail.163.com/">lzl20220405@163.com</a></i>
+                            
+                            <ul>
+                                <li><a href="{% url 'index' %}">主页</a></li>
+                                <li><a href="{% url 'about' %}">关于作者</a></li>
+                                <li><a class="active" href="{% url 'list' 1 %}">博客</a></li>
+                                <li><a href="{% url 'works' 1 %}">其他作品</a></li>
+                             </ul>
+                        </nav>
+                        <ul class="email text_align_right">
+                            {% if login %}
+                                <a href={% url 'user_index' username %} target="_blank"><img class="avatar" src="{{ user.avatar.url }}"></img></a>
+                            {% else %}
+                                <li><a class="login_button" href="{% url 'login' %}" target="_blank">登录</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% if limit %}
+
+    <h1 style="text-align: center; color: black; margin-top: 80px; font-weight: 600;"> 抱歉，您的权限不足，无法访问！</h1>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+</body>
+
+</html>
+
+    {% else %}
+
+    {% if blog %}
+
+    {% if message %}
+
+    <div class="alert alert-warning alert-dismissible fade show" style="width:1000px; padding-left:50px; margin:0 auto">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <strong>{{ message }}</strong>
+    </div>
+
+    {% endif %}
+
+    <form action="{% url 'update' blog.id %}" method="POST" enctype="multipart/form-data" id="blog_form">
+        
+    {% csrf_token %}
+
+    <div class="content_bg">
+        <textarea name="blog_content" id="editor-wrapper">{{ blog.content|safe }}</textarea>
+    </div>
+
+    <div class="detail_bg">
+        <label for="title_input" class="title_input_label" >文章标题</label>
+        <input type="text" name="blog_title" class="title_input" placeholder="请输入文章标题" value="{{ blog.title }}"></input><br>
+        <label for="desc_input" class="desc_input_label" >文章摘要</label>
+        <input type="text" name="blog_desc" class="desc_input" placeholder="请输入文章摘要" value="{{ blog.desc }}"></input><br>
+        
+        <div class="upload_cover_box" onclick="SetCover()">
+            <label for="cover_input" class="cover_input_label" >文章封面</label>
+            <img width="117" height="100" src="{{ blog.cover.url }}" class="upload_cover_img" id="cover_img"></img>
+            <input type="file" name="blog_cover" class="cover_input" id="cover_input" multiple="false" accept="image/*" onchange="GetCover(event)"></input><br>
+        </div>
+
+        <div class="dropdown-container-1">
+            <label for="category_input" class="category_input_label">文章分类</label>
+            <button type="button" class="category_input_button dropdown-toggle" data-toggle="dropdown">选择分类</button>
+            <div class="dropdown-menu">
+                {% for category in all_category %}
+                    <button type="button" class="dropdown-item" onclick="SetCategory('{{ category.name }}')">{{ category.name }}</button>
+                {% endfor %}
+            </div>
+            <input type="text" name="blog_category" class="category_input" id="category_input" placeholder="请输入文章分类" value={{ blog.category.name }}></input><br>
+        </div>
+        
+        <div class="dropdown-container-2">
+            <label for="tag_input" class="tag_input_label" >文章标签</label>
+            <button type="button" class="tag_input_button dropdown-toggle" data-toggle="dropdown">选择标签</button>
+            <div class="dropdown-menu">
+                {% for tag in all_tag %}
+                    <button type="button" class="dropdown-item" onclick="SetTag('{{ tag.name }}')">{{ tag.name }}</button>
+                {% endfor %}
+            </div>
+            <input type="text" name="blog_tag" class="tag_input" id="tag_input" placeholder="请输入文章标签"></input><br>
+        </div>
+
+        <input type="hidden" name="blog_status" id="status_input" value="{{ blog.status }}"></input>
+
+        <button class="btn btn-success float-left" type="submit" onclick="SetStatus(1)">发布博客</button>
+        <button class="btn btn-danger float-right" type="button" onclick="SetStatus(0)">删除博客</button>
+    </div>
+
+    </form>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/angular-SweetAlert.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/sweetalert.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+    <script type="text/javascript">
+
+    window.history.replaceState(null, null, window.location.href);
+
+    tinymce.init({
+        selector: '#editor-wrapper',
+        plugins: 'lists, advlist, anchor, autolink, autosave, charmap, emoticons, fullscreen, link, preview, table, searchreplace, image',
+        toolbar: 'undo redo restoredraft  searchreplace| preview | newdocument fullscreen | cut copy paste | lineheight hr | bold italic underline strikethrough subscript superscript forecolor backcolor blockquote | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect removeformat | outdent indent | bullist numlist table | anchor link | charmap emoticons image',
+        auto_focus: true,
+        branding: false,
+        elementpath: false,
+        promotion: false,
+        height: 800,
+        placeholder: '在此处输入文章正文…',
+        language: "zh-Hans",
+        content_css: "{% static 'blog/css/mycontent.css' %}",
+        images_upload_url: '/blogs/upload_image/',
+    })
+
+    function SetCover(){
+        const cover_input = document.getElementById('cover_input');
+        cover_input.click();
+    }
+
+    function GetCover(event){
+        const cover_img = document.getElementById('cover_img');
+        const files = event.target.files;
+        const file = files[0];
+
+        const reader = new window.FileReader();
+        reader.readAsDataURL(file);
+        reader.addEventListener('load', function(){
+            const result = reader.result;
+            cover_img.src = result;
+        })
+    }
+
+    function SetCategory(name){
+        const category_input = document.getElementById('category_input');
+        category_input.value = name;
+    }
+
+    function SetTag(name){
+        const tag_input = document.getElementById('tag_input');
+        var value = tag_input.value;
+        if (value){
+            if (!(value.includes(name))){
+                value = value + " " + name;
+            }
+        }
+        else{
+            value = name;
+        }
+        tag_input.value = value;
+    }
+
+    function SetStatus(status_type){
+        const status_input = document.getElementById("status_input");
+        const blog_form = document.getElementById("blog_form");
+
+        if (status_type == 1){
+            status_input.value = "1";
+        }
+        else if (status_type == 0){
+            swal({
+                title: "确定要删除此博客吗？",
+                icon: "warning",
+                closeOnClickOutside: true,
+                buttons: ['取消', '确定']
+            }).then((willDelete) => {
+                if (willDelete){
+                    status_input.value = "0";
+                    blog_form.submit();
+                }
+            });
+        }
+    }
+
+    var result = "";
+    const tag_input = document.getElementById("tag_input");
+
+    {% if all_blog_tag %}
+        
+    {% for tag in all_blog_tag %}
+
+        {% if forloop.first %}
+
+        result = '{{ tag.name }}'
+
+        {% else %}
+
+        result = result + " " + '{{ tag.name }}'
+
+        {% endif %}
+
+    {% endfor %}
+
+    {% endif %}
+
+    tag_input.value = result;
+
+    </script>
+
+</body>
+
+</html>
+
+{% else %}
+
+<h1 style="text-align: center; color: black; margin-top: 80px; font-weight: 600;"> 抱歉，博客不存在！</h1>
+
+<script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+<script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+<script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+<script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+</body>
+
+</html>
+
+{% endif %}
+
+{% endif %}

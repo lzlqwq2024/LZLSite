@@ -1,0 +1,10 @@
+body, td, pre {
+    font-family: "Microsoft Yahei";
+    font-size: 18px;
+    margin-left: 45px;
+    margin-right: 45px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    line-height: 2;
+    color: black;
+}

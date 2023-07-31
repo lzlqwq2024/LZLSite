@@ -1,0 +1,208 @@
+{% load static %}
+{% load extratag %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/js/sweetalert/sweetalert.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'login/css/index.css' %}" rel="stylesheet"/>
+    <link href="{% static 'blog/css/font-awesome.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    {% if user %}
+        <title>LZLSite | 用户 {{ user.name }} 的个人界面</title>
+    {% else %}
+        <title>LZLSite | 未知用户</title>
+    {% endif %}
+</head>
+
+{% csrf_token %}
+
+{% if not user %}
+<body>
+    <div class="container">
+        <h1 style="font-size:40px; text-align: center; margin-top: 60px; padding-top: 60px; padding-bottom: 60px;font-weight: bold; ">抱歉，该用户不存在！</h1>
+    </div>
+</body>
+{% else %}
+
+<body>
+    <header class="header-area">
+        <div class="header-container">
+            <div class="row d_flex">
+                <div class="col-md-12 col-sm-12">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <a class="logo" href="{% url 'index' %}"> LZLSITE </a>
+                            <i class="fa fa-envelope" aria-hidden="true"><a class="contactlink" href="https://mail.163.com/">lzl20220405@163.com</a></i>
+                            
+                            <ul>
+                                <li><a href="{% url 'index' %}">主页</a></li>
+                                <li><a href="{% url 'about' %}">关于作者</a></li>
+                                <li><a href="{% url 'list' 1 %}">博客</a></li>
+                                <li><a href="{% url 'works' 1 %}">其他作品</a></li>
+                             </ul>
+                        </nav>
+                        <ul class="email text_align_right">
+                            {% if login %}
+                                <a href={% url 'user_index' username %} target="_blank"><img class="avatar-detail" src="{{ user.avatar.url }}"></img></a>
+                            {% else %}
+                                <li><a class="login_button" href="{% url 'login' %}" target="_blank">登录</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        {% if not limits %}
+            <div class="front-detail">
+                <!-- 头像 -->
+                <div id="avatardiv" onmouseover="avatar_mouseover()" onmouseout="avatar_mouseout()" onclick="getImg()">
+                    <img class="avatar" id="avatar" src="{{ user.avatar.url }}" data-toggle="tooltip" title="点击更换头像" data-placement="left">
+                </div>
+                
+                <!-- 用户名-->
+                <p class="username">{{ user.name }}</p>
+
+                <!-- 头像上传表单 -->
+                <form action={% url 'user_index' username %} method="POST" id="avatar-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input id="avatar-upload" type="file" name="avatar" accept="image/*" style="display: none" onchange="uploadImg()">
+                </form>
+
+                <!-- 修改个人签名模态框 -->
+                <div class="modal fade" id="description-modal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">修改个人签名</h4>
+                                <button type="button" class="close" data-dismiss="modal"></button>
+                            </div>
+
+                            <div class="modal-body">
+                                <form action={% url 'user_index' username %} method="POST" id="description-form">
+                                    {% csrf_token %}
+                                    <input id="small-description-upload" type="text" name="small_description" value="{{ user.small_description }}" autocomplete="off">
+                                </form>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="uploadDescription()">保存</button>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 个人签名 -->
+                <p class="small-description" onclick="show_SmallDescriptionModal()" data-toggle="tooltip" title="点击更换签名" data-placement="right">{{ user.small_description }}</p>
+                <hr class="line1">
+            </div>
+
+            <div class="user-description">
+                <div id="user-detail-group">
+                    <!-- 个人介绍展示区 -->
+                    <p class="user-detail-title">个人介绍</p>
+                    <button onclick="turn_editor_visible()" class="turn-editor-button">去编辑</button>
+                    <div id="user-detail" class="editor-content-view">{{ user.big_detail|safe }}</div>
+                </div>
+
+                <div id="editor-wrapper" class="editor-space" style="display: none;">
+                    <!-- 个人介绍编辑区 -->
+                    <p class="user-detail-write-title">编辑个人介绍</p>
+                    <form action={% url 'user_index' username %} method="POST">
+                        {% csrf_token %}
+                        <div class="button-wrapper">
+                            <button type="submit" class="save-text-button">保存</button>
+                            <button type="button" onclick="turn_text_visible()" class="turn-text-button">取消</button>
+                        </div>
+                        <textarea name="big_detail" id="editor-space">{{ user.big_detail|safe }}</textarea>
+                    </form>
+                </div>
+                <hr class="line2">
+            </div>
+            
+            <div class="user-settings">
+                <!-- 个人设置 -->
+                <p class="user-settings-title">个人设置</p>
+                <button type="button" onclick="logout()" class="logout-button">登出</button>
+                <button type="button" onclick="reset_password()" class="reset-password-button">修改密码</button>
+                <hr class="line3">
+            </div>
+            
+        {% else %}
+            <!-- 当访问其他用户主页时展示的页面 -->
+            <div class="front-detail">
+                <!-- 头像 -->
+                <div id="avatardiv">
+                    <img class="avatar" id="avatar" src="{{ user.avatar.url }}">
+                </div>
+
+                <!-- 用户名 -->
+                <p class="username">{{ user.name }}</p>
+
+                <!-- 用户签名 -->
+                <p class="small-description">{{ user.small_description }}</p>
+                <hr class="line1">
+            </div>
+
+            <div class="user-description">
+                <!-- 个人介绍 -->
+                <div id="user-detail-group">
+                    <p class="user-detail-title">个人介绍</p>
+                    <div id="user-detail" class="editor-content-view">{{ user.big_detail|safe }}</div>
+                </div>
+                <hr class="line2-end">
+            </div>
+        {% endif %}
+    </div>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/angular.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/angular-SweetAlert.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/sweetalert/sweetalert.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+    {% if not limits %}
+        <script type="text/javascript" src="{% static 'login/js/user_index.js' %}"></script>
+        <script type="text/javascript">
+            window.history.replaceState(null, null, window.location.href);
+
+            function startChange(obj,speed,target){
+                clearInterval(timer);
+                speed = target>alpha?speed:-speed;
+                timer = setInterval(function(){
+                if(alpha <= target){
+                    clearInterval(timer);
+                    var avatar_img = document.getElementById('avatar');
+                    if (avatar_type == 0){
+                        avatar_img.src = "{% static 'login/image/upload_avatar_image.png' %}";
+                        alpha = 100;
+                        avatar_type = 1;
+                    }
+                    else{
+                        avatar_img.src = "{{ user.avatar.url }}";
+                        alpha = 100;
+                        avatar_type = 0;
+                    }
+                }
+                else{
+                    alpha += speed;
+                }
+                obj.style.opacity=alpha/100;
+                obj.style.filter="alpha(opacity:"+alpha+")";
+                },20);
+            }
+        </script>
+    {% endif %}
+</body>
+
+{% endif %}
+</html>

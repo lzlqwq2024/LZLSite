@@ -1,0 +1,156 @@
+{% load static %}
+{% load extratag %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    <link href="{% static 'blog/css/manage.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'blog/css/font-awesome.min.css' %}" />
+    {% if limit %}
+        <title>LZLSite | 权限不足</title>
+    {% else %}
+        <title>LZLSite | 管理博客</title>
+    {% endif %}
+</head>
+
+<body>
+
+    <!-- 
+    <div class="loader_bg">
+        <div class="loader"><img src="{% static 'blog/image/loading.gif' %}" alt="#"/></div>
+    </div>
+    -->
+
+    <header class="header-area">
+        <div class="header-container">
+            <div class="row d_flex">
+                <div class="col-md-12 col-sm-12">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <a class="logo" href="{% url 'index' %}"> LZLSITE </a>
+                            <i class="fa fa-envelope" aria-hidden="true"><a class="contactlink" href="https://mail.163.com/">lzl20220405@163.com</a></i>
+                            
+                            <ul>
+                                <li><a href="{% url 'index' %}">主页</a></li>
+                                <li><a href="{% url 'about' %}">关于作者</a></li>
+                                <li><a class="active" href="{% url 'list' 1 %}">博客</a></li>
+                                <li><a href="{% url 'works' 1 %}">其他作品</a></li>
+                             </ul>
+                        </nav>
+                        <ul class="email text_align_right">
+                            {% if login %}
+                                <a href={% url 'user_index' username %} target="_blank"><img class="avatar" src="{{ user.avatar.url }}"></img></a>
+                                <li><a class="write_button" href="{% url 'write' %}" target="_blank">创作博客</a></li>
+                                <li><a class="update_button" href="{% url 'update_ct' %}" target="_blank">更新分类与标签</a></li>
+                            {% else %}
+                                <li><a class="login_button" href="{% url 'login' %}" target="_blank">登录</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% if limit %}
+
+    <h1 style="text-align: center; color: black; margin-top: 80px; font-weight: 600;"> 抱歉，您的权限不足，无法访问！</h1>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+</body>
+
+</html>
+
+    {% else %}
+
+    <div class="container">
+        
+        <div class="container-fluid">
+            <div class="row">
+            
+            {% if blogs %}
+            {% for blog in blogs %}
+
+                <div class="col col-md-4">
+                    <div class="card mb-4">
+                        <a href="{% url 'update' blog.id %}" target="_blank">
+                            <img class="img-fluid card-img-top img-responsive" src="{{ blog.cover.url }}" alt="博客配图">
+                        </a>
+                        <div class="card-body">
+                            {% if blog.status == 1 %}
+                            <h4 class="card-title">{{ blog.title }}</h4>
+                            {% else %}
+                            <h4 class="card-title">{{ blog.title }} <span class="badge badge-secondary">草稿</span></h4>
+                            {% endif %}
+                            <p style="font-size=0.9rem" class="card-text font-weight-light blog-desc">{{ blog.desc }}</p>
+                            {% if blog.category %}
+                            <small class="card-text blog-category">{{ blog.category.name }}</small>
+                            {% else %}
+                            <small class="card-text blog-category">暂无分类</small>
+                            {% endif %}
+                            <small class="card-text blog-time">{{ blog.c_time|date:"Y.m.d"}}</small>
+                            <samll class="card-text blog-comment">{{ blog.comment_num }}条评论</small>
+                            <small class="card-text blog-seen">{{ blog.seen }}次浏览</small>
+                        </div>
+                    </div>
+                </div>
+            
+            {% endfor %}
+            {% endif %}
+            </div>
+
+            <div class="paginator-container">
+                {% if page_list %}
+                
+                <ul class="pagination">
+                    <p class="pagination-label">共 <b>{{ page_sum }}</b> 页</p>
+                    
+                    <li><a href="{% url 'manage' 1 %}">|<</a></li>
+                    
+                    {% if page_num <= 1 %}
+                        <li><a href="{% url 'manage' 1 %}"><</a></li>
+                    {% else %}
+                        <li><a href="{% url 'manage' page_num|add:-1 %}"><</a></li>
+                    {% endif %}
+
+                    {% for pagenum in page_list %}
+                        {% if page_num == pagenum %}
+                            <li><a class="onpage" href="{% url 'manage' pagenum %}">{{ pagenum }}</a></li>
+                        {% else %}
+                            <li><a href="{% url 'manage' pagenum %}">{{ pagenum }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_num >= page_sum %} 
+                        <li><a href="{% url 'manage' page_sum %}">></a></li>
+                    {% else %}
+                        <li><a href="{% url 'manage' page_num|add:1 %}">></a></li>
+                    {% endif %}
+
+                    <li><a href="{% url 'manage' page_sum %}">>|</a></li>
+                </ul>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    
+</body>
+
+</html>
+
+{% endif %}

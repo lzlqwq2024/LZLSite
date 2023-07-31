@@ -1,0 +1,193 @@
+{% load static %}
+{% load extratag %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    <link href="{% static 'blog/css/blog.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'blog/css/font-awesome.min.css' %}" />
+    {% if blog %}
+        <title>LZLSite | {{ blog.title }}</title>
+    {% else %}
+        <title>页面不存在 Σ-⊙▽⊙- </title>
+    {% endif %}
+</head>
+
+{% csrf_token %}
+
+<body class="main-layout">
+
+    <!-- 
+    <div class="loader_bg">
+        <div class="loader"><img src="{% static 'blog/image/loading.gif' %}" alt="#"/></div>
+    </div>
+    -->
+
+    <header class="header-area">
+        <div class="header-container">
+            <div class="row d_flex">
+                <div class="col-md-12 col-sm-12">
+                    <div class="navbar-area">
+                        <nav class="site-navbar">
+                            <a class="logo" href="{% url 'index' %}"> LZLSITE </a>
+                            <i class="fa fa-envelope" aria-hidden="true"><a class="contactlink" href="https://mail.163.com/">lzl20220405@163.com</a></i>
+                            
+                            <ul>
+                                <li><a href="{% url 'index' %}">主页</a></li>
+                                <li><a href="{% url 'about' %}">关于作者</a></li>
+                                <li><a class="active" href="{% url 'list' 1 %}">博客</a></li>
+                                <li><a href="{% url 'works' 1 %}">其他作品</a></li>
+                             </ul>
+                        </nav>
+                        <ul class="email text_align_right">
+                            {% if login %}
+                                <a href={% url 'user_index' username %} target="_blank"><img class="avatar" src="{{ user.avatar.url }}"></img></a>
+                            {% else %}
+                                <li><a class="login_button" href="{% url 'login' %}" target="_blank">登录</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    {% if blog %}
+
+    <div class="full_bg">
+        <div class="blog-area">
+            <div class="blog-header">
+                <p class="title"> {{ blog.title }}</p><br>
+                <span class="fa fa-user" aria-hidden="true"><p class="author"><b> 作者：</b> {{ blog.owner }} </p></span>
+                <span class="fa fa-clock-o" aria-hidden="true"><p class="time"><b> 发布时间：</b> {{ blog.c_time|date:"Y-m-d H:i:s"}} </p></span>
+                <span class="fa fa-eye" aria-hidden="true"><p class="seen"><b> 阅读量：</b> {{ blog.seen }} </p></span>
+                <span class="fa fa-comments" aria-hidden="true"><p class="comment_num"><b> 评论数：</b> {{ comment_sum }} </p></span>
+                {% if login %}{% if loved %}<button class="show-love" data-toggle="tooltip" title="取消点赞" onclick="love(0)"><span class="fa fa-thumbs-up" aria-hidden="true"><p class="love-y"><b> 点赞：</b> {{ blog.love }} </p></span></button><br>{% else %}<button class="show-love" data-toggle="tooltip" title="点个赞吧" onclick="love(1)"><span class="fa fa-heart" aria-hidden="true"><p class="love"><b> 点赞：</b> {{ blog.love }} </p></span></button><br>{% endif %}
+                {% else %}<button class="show-love" data-toggle="tooltip" title="抱歉，未登录无法点赞"><span class="fa fa-heart" aria-hidden="true"><p class="love"><b> 点赞：</b> {{ blog.love }} </p></span></button><br>{% endif %}
+                <span class="fa fa-bookmark" aria-hidden="true"><p class="category"><b> 分类：</b> {% if category %} <p class="single_category" style="background-color: {{category.color}}">{{ category.name }}</p>{% else %} 暂无 {% endif %}</p></span>
+                <span class="fa fa-tag" aria-hidden="true"><p class="tag"><b> 标签：</b> {% if tag_list %}{% for tag in tag_list %} <p class="single_tag" style="background-color: {{tag.color}}">{{ tag.name }}</p>{% endfor %}{% else %} 暂无 {% endif %}</p></span>
+                <hr class="content-line">
+            </div>
+            <div class="blog-content">
+                <p> {{ blog.content|safe }} </p>
+            </div>
+            <hr class="comment-line">
+        </div>
+
+        <div class="write-comments">
+            {% if login %}
+            <p class="addcomment-text">发表评论：</p>
+                <form action="{% url 'blog' blog.id %}" method="POST">
+                    {% csrf_token %}
+                    <textarea name="add_comment" id="editor-wrapper"></textarea>
+                    <div class="button-wrapper">
+                        <button type="reset" class="reset-comment-button">重置</button>
+                        <button type="submit" class="save-comment-button">评论</button>
+                    </div>
+                </form>
+    
+            {% else %}
+                <p style="font-size: 18px;"><Span style="font-size: 23px; color: red; font-weight: bold;">!!!</span>&nbsp;&nbsp;&nbsp;抱歉，未登录不可发表评论，请先 <a href="{% url 'login' %}" class="text-info">登录</a></p>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+            {% endif %}
+            <hr class="write-comment-line">
+        </div>
+
+        <div class="comments-space">
+            {% for comment in comment_list %}
+                <a href={% url 'user_index' username %} target="_blank"><img class="comment-avatar" src="{{ comment.user.avatar.url }}"></img></a>
+                {% if not forloop.last %}
+                    <div class="user-comment-container">
+                        {% if not comment.parent_comment %}
+                            <div class="user-comment">{{ comment.text|safe }}</div>
+                            <p class="user-comment-detail">By&nbsp;&nbsp;{{ comment.user.name }}&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;<em>{{ comment.c_time|date:'Y.m.d H:i' }}</em>&nbsp;&nbsp;&nbsp;&nbsp;<a id="reply-href" href="{% url 'comment' blog.id comment.id %}" class="text-info" target="_blank">回复</a></p>
+                        {% else %}
+                            <div class="user-comment"><em class="re-comment">@{{ comment.parent_comment.user }}: {{ comment.parent_comment.text|safe }}</em><br>{{ comment.text|safe }}</div>
+                            <p class="user-comment-detail">{{ comment.user.name }}&nbsp;&nbsp;回复&nbsp;&nbsp;{{ comment.parent_comment.user.name }}&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;<em>{{ comment.c_time|date:'Y.m.d H:i' }}</em>&nbsp;&nbsp;&nbsp;&nbsp;<a id="reply-href"  href="{% url 'comment' blog.id comment.id %}" class="text-info" target="_blank">回复</a></p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="user-comment-container-last">
+                        {% if not comment.parent_comment %}
+                            <div class="user-comment">{{ comment.text|safe }}</div>
+                            <p class="user-comment-detail">By&nbsp;&nbsp;{{ comment.user.name }}&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;<em>{{ comment.c_time|date:'Y.m.d H:i' }}</em>&nbsp;&nbsp;&nbsp;&nbsp;<a id="reply-href" href="{% url 'comment' blog.id comment.id %}" class="text-info" target="_blank">回复</a></p>
+                        {% else %}
+                            <div class="user-comment"><em class="re-comment">@{{ comment.parent_comment.user }}: {{ comment.parent_comment.text|safe }}</em><br>{{ comment.text|safe }}</div>
+                            <p class="user-comment-detail">{{ comment.user.name }}&nbsp;&nbsp;回复&nbsp;&nbsp;{{ comment.parent_comment.user.name }}&nbsp;&nbsp;&nbsp;On&nbsp;&nbsp;<em>{{ comment.c_time|date:'Y.m.d H:i' }}</em>&nbsp;&nbsp;&nbsp;&nbsp;<a id="reply-href"  href="{% url 'comment' blog.id comment.id %}" class="text-info" target="_blank">回复</a></p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <br>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+
+    <h1 style="text-align: center; color: black; margin-top: 80px; font-weight: 600;"> 抱歉，博客不存在！</h1>
+
+    {% endif %}
+
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/custom.js' %}"></script>
+    <script type="text/javascript" src="{% static 'blog/js/tinymce/tinymce.min.js' %}"></script>
+
+    {% if blog %}
+    
+    <script type="text/javascript">
+        window.history.replaceState(null, null, window.location.href);
+        
+        function love(value){
+            var temp = document.createElement("form");
+            temp.action = "{% url 'blog' blog.id %}";
+            temp.method = "POST";
+            temp.style.display = "none";
+
+            var opt = document.createElement("textarea");
+            opt.name = "love";
+            opt.value = value;
+            temp.appendChild(opt);
+
+            var csrftoken = document.createElement("input");
+            csrftoken.type = "hidden";
+            csrftoken.name = "csrfmiddlewaretoken";
+            csrftoken.value = document.getElementsByName('csrfmiddlewaretoken')[0].value;
+            temp.appendChild(csrftoken);
+
+            document.body.appendChild(temp);
+            temp.submit();
+        }
+
+        {% if login %}
+
+        tinymce.init({
+            selector: '#editor-wrapper',
+            plugins: 'lists, advlist, autolink, autosave, charmap, emoticons, link, searchreplace',
+            toolbar: 'undo redo restoredraft searchreplace| newdocument | cut copy paste | lineheight hr | bold italic underline strikethrough subscript superscript forecolor backcolor blockquote | alignleft aligncenter alignright alignjustify | styleselect formatselect fontselect fontsizeselect removeformat | outdent indent | bullist numlist | link | charmap emoticons',
+            branding: false,
+            elementpath: false,
+            promotion: false,
+            height: 400,
+            placeholder: '说点什么吧……',
+            language: "zh-Hans",
+            {% if message %}
+            init_instance_callback: function(editor){
+                editor.notificationManager.open({
+                    text: '{{ message }}',
+                    type: 'error',
+                })
+            }
+            {% endif %}
+        });
+
+        {% endif %}
+    </script>
+
+    {% endif %}
+
+</body>
+</html>

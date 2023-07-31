@@ -1,0 +1,100 @@
+body {
+    height: 100%;
+    background-image: url('../image/bg.png');
+    background-repeat: no-repeat;
+    background-attachment: fixed;  
+}
+
+.container {
+    background-color: white;
+    border-radius: 10px;
+    text-align: center;
+    width: 450px;
+    height: 550px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -275px 0 0 -225px;
+}
+
+.logo-image {
+    width: 354px;
+    height: 175px;
+    background-image: url("../image/favicon.png");
+    display: block;
+    margin: auto;
+    margin-top: 40px;
+}
+
+.email-group {
+    margin-top: 30px;
+}
+
+input.email-input {
+    position: relative;
+    box-shadow: 0 1px 4px 1px #999999;
+    font-size: 18px;
+    width: 360px;
+    height: 48px;
+    padding-left: 20px;
+    border: 1px solid darkgrey;
+    border-radius: 3px;
+}
+
+input.email-input:focus, input.email-input:hover {
+    outline: 0;
+    border: 2px solid rgb(0,172,194); 
+    box-shadow: 0 1px 4px 1px #b1fff8;
+}
+
+.submit-button-container {
+    display: block;
+    margin-top: 50px;
+}
+
+button.submit-button {
+    width: 320px;
+    height: 50px;
+    border-radius: 8px;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+    background-color: rgb(2, 180, 204);
+    box-shadow: 0px 5px 1px rgb(0, 116, 131);
+    border: 0px;
+}
+
+button.submit-button[disabled] {
+    width: 320px;
+    height: 50px;
+    border-radius: 8px;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+    background-color: rgb(150, 150, 150);
+    box-shadow: 0px 5px 1px rgb(85, 85, 85);
+    border: 0px;
+}
+
+button.submit-button[disabled]:hover, button.submit-button[disabled]:active {
+    width: 320px;
+    height: 50px;
+    border-radius: 8px;
+    font-size: 20px;
+    color: white;
+    font-weight: bold;
+    background-color: rgb(150, 150, 150);
+    box-shadow: 0px 5px 1px rgb(85, 85, 85);
+    border: 0px;
+}
+
+button.submit-button:hover, .submit-button:active {
+    outline: 0;
+    background-color: rgb(2, 200, 226);
+    box-shadow: 0px 5px 1px rgb(0, 134, 151);
+}
+
+.captcha-group {
+    margin-top: 30px;
+    margin-left: 30px;
+}

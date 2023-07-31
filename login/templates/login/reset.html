@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/css/reset.css' %}" rel="stylesheet"/> 
+    <link href="{% static 'login/css/verify.css' %}" rel="stylesheet"/> 
+    <link href="{% static 'login/image/favicon.ico' %}" rel="shortcut icon"/>
+    <title>LZLSite | 修改密码-邮件确认</title>
+</head>
+
+{% if message %}
+<div class="alert alert-warning alert-dismissible fade show" style="width:1000px;padding-left: 50px;margin:0 auto">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>{{ message }}</strong>
+</div>
+{% endif %}
+
+<body>
+    <div class="container">
+        <div class="login-group">
+            <form class="form-login" action="{% url 'reset' %}" method="post">
+                {% csrf_token %}
+
+                <!-- 网站 logo 图片 -->
+                <div class="logo-image"></div>
+
+                <!-- 拖动滑块验证 -->
+                <div class="captcha-group">
+                    <div id="mpanel1"></div>
+                </div>
+
+                <!-- 邮件 -->
+                <div class="email-group"> 
+                    <input type="text" name="email" class="email-input" id="email-input" placeholder="请输入邮件">
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="submit-button-container">
+                    <button type="submit" class="submit-button" id="submit-button" disabled="disabled">去邮件修改密码</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script type="text/javascript" src="{% static 'login/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/popper.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/verify/verify.js' %}"></script>
+    <script type="text/javascript" src="{% static 'login/js/show_verify.js' %}"></script>
+</body>
+</html>
